@@ -141,7 +141,7 @@ function AdminSuper() {
         const token = localStorage.getItem('adminAccessToken');
         if (!token) {
             alert('관리자 로그인이 필요합니다.');
-            navigate('/admin/login-xXx');
+            navigate('/admin');
         } else {
             fetchAdmins();
         }

@@ -21,7 +21,7 @@ function AdminUser() {
         const adminAccessToken = localStorage.getItem("adminAccessToken");
         if (!adminAccessToken) {
             alert("관리자 로그인이 필요합니다.");
-            navigate("/admin/login-xXx");
+            navigate("/admin");
         } else {
             fetchUsers(adminAccessToken, page);
         }
