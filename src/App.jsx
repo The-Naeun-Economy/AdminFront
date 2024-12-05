@@ -12,13 +12,13 @@ function App() {
         <RecoilRoot>
             <Routes>
                 {/* 명시된 라우트 */}
-                <Route path="/" element={<AdminSignIn/>}/>
+                <Route path="/admin" element={<AdminSignIn/>}/>
                 <Route path="/admin/super" element={<AdminSuper/>}/>
                 <Route path="/admin/main" element={<AdminMain/>}/>
                 <Route path="/admin/user" element={<AdminUser/>}/>
 
                 {/* 잘못된 URL 접근 시 리다이렉트 */}
-                <Route path="*" element={<Navigate to="/"/>}/>
+                <Route path="*" element={<Navigate to="/admin"/>}/>
             </Routes>
         </RecoilRoot>
     );
