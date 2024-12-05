@@ -1,0 +1,104 @@
+services:
+  community:
+    image: jogyoungjun/community:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+      SPRING_DATASOURCE_URL: jdbc:mysql://community_mysql:3306/repick-community?serverTimezone=Asia/Seoul
+      SPRING_DATASOURCE_PASSWORD: 1234
+    ports:
+      - "9000:9000"
+    depends_on:
+      community_mysql:
+        condition: service_healthy
+    networks:
+      - rePick
+
+  community_mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: repick-community
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3309:3306"
+    networks:
+      - rePick
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "--silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+  redis:
+    image: redis:latest
+    container_name: comment-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - rePick
+  comment:
+    image: jogyoungjun/comment:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+      SPRING_DATASOURCE_URL: jdbc:mysql://comment_mysql:3306/repick-comment?serverTimezone=Asia/Seoul
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATA_REDIS_HOST: comment-redis
+    ports:
+      - "9001:9001"
+    depends_on:
+      comment_mysql:
+        condition: service_healthy
+    networks:
+      - rePick
+
+  comment_mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: repick-comment
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3311:3306"
+    networks:
+      - rePick
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "--silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  user:
+    image: jogyoungjun/user:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+      SPRING_DATASOURCE_URL: jdbc:mysql://user_mysql:3306/user?serverTimezone=Asia/Seoul
+      SPRING_DATASOURCE_PASSWORD: root_password
+    ports:
+      - "8080:8080"
+    depends_on:
+      user_mysql:
+        condition: service_healthy
+    networks:
+      - rePick
+
+  user_mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: user
+    ports:
+      - "3307:3306"
+    networks:
+      - rePick
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "--silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+networks:
+  rePick:
