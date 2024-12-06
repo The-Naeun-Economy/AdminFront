@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { usersApi, postsApi } from "../api/api.js";
+import {usersApi, postsApi, commentsApi} from "../api/api.js";
 import AdminSidebar from "./AdminSidebar.jsx";
 import "../css/AdminCommunityPosts.css";
 
@@ -14,7 +14,9 @@ function AdminCommunityPosts() {
     const [error, setError] = useState(null);
     const [apiToken, setApiToken] = useState(null);
     const [selectedPost, setSelectedPost] = useState(null);
-    const [deletingPostId, setDeletingPostId] = useState(null);
+    const [comments, setComments] = useState([]); // 댓글 데이터
+    const [loadingComments, setLoadingComments] = useState(false); // 댓글 로딩 상태
+    const [commentError, setCommentError] = useState(null); // 댓글 조회 에러
 
     useEffect(() => {
         if (!userId) {
@@ -60,7 +62,6 @@ function AdminCommunityPosts() {
             const response = await postsApi.get(`/users/me`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            console.log(response.data)
             setPosts(response.data);
         } catch (err) {
             setError(err.response?.data?.message || "게시글 데이터를 가져오는 데 실패했습니다.");
@@ -69,11 +70,48 @@ function AdminCommunityPosts() {
         }
     };
 
+    const fetchComments = async (postId) => {
+        setLoadingComments(true);
+        setCommentError(null);
+        try {
+            const response = await commentsApi.get(`/${postId}/comments/users/me`, {
+                headers: { Authorization: `Bearer ${apiToken}` },
+            });
+            setComments(response.data);
+        } catch (err) {
+            setCommentError(err.response?.data?.message || "댓글 데이터를 가져오는 데 실패했습니다.");
+        } finally {
+            setLoadingComments(false);
+        }
+    };
+
+    const deleteComment = async (commentId) => {
+        if (!selectedPost) {
+            alert("게시글 정보가 없습니다.");
+            return;
+        }
+
+        const confirmDelete = window.confirm("이 댓글을 삭제하시겠습니까?");
+        if (!confirmDelete) return;
+
+        try {
+            await commentsApi.delete(`/${selectedPost}/comments/${commentId}`, {
+                headers: { Authorization: `Bearer ${apiToken}` },
+            });
+
+            alert("댓글이 성공적으로 삭제되었습니다.");
+            setComments((prevComments) => prevComments.filter((comment) => comment.id !== commentId));
+        } catch (err) {
+            alert(err.response?.data?.message || "댓글 삭제 중 오류가 발생했습니다.");
+        }
+    };
+
+
+
     const deletePost = async (postId) => {
         const confirmDelete = window.confirm("이 게시글을 삭제하시겠습니까?");
         if (!confirmDelete) return;
 
-        setDeletingPostId(postId);
         try {
             await postsApi.delete(`/${postId}`, {
                 headers: { Authorization: `Bearer ${apiToken}` },
@@ -83,16 +121,16 @@ function AdminCommunityPosts() {
             setPosts(posts.filter((post) => post.id !== postId));
         } catch (err) {
             alert(err.response?.data?.message || "게시글 삭제 중 오류가 발생했습니다.");
-        } finally {
-            setDeletingPostId(null);
         }
     };
 
-    const openModal = (post) => {
-        setSelectedPost(post);
+    const openCommentsModal = (postId) => {
+        fetchComments(postId);
+        setSelectedPost(postId);
     };
 
-    const closeModal = () => {
+    const closeCommentsModal = () => {
+        setComments([]);
         setSelectedPost(null);
     };
 
@@ -126,10 +164,8 @@ function AdminCommunityPosts() {
                                     <th>카테고리</th>
                                     <th>작성자</th>
                                     <th>작성일</th>
-                                    <th>조회수</th>
-                                    <th>좋아요</th>
-                                    <th>댓글 수</th>
-                                    <th>버튼</th>
+                                    <th>댓글 관리</th>
+                                    <th>삭제</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -140,30 +176,24 @@ function AdminCommunityPosts() {
                                             {post.content.length > 20
                                                 ? `${post.content.slice(0, 20)}...`
                                                 : post.content}
-                                            {post.content.length > 20 && (
-                                                <button
-                                                    className="view-more-button"
-                                                    onClick={() => openModal(post)}
-                                                >
-                                                    더보기
-                                                </button>
-                                            )}
                                         </td>
                                         <td>{post.category}</td>
                                         <td>{post.userNickname}</td>
                                         <td>{new Date(post.createdAt).toLocaleDateString()}</td>
-                                        <td>{post.viewCount}</td>
-                                        <td>{post.likesCount}</td>
-                                        <td>{post.commentsCount}</td>
                                         <td>
                                             <button
-                                                className={`delete-button ${
-                                                    deletingPostId === post.id ? "deleting" : ""
-                                                }`}
-                                                onClick={() => deletePost(post.id)}
-                                                disabled={deletingPostId === post.id}
+                                                className="comments-button"
+                                                onClick={() => openCommentsModal(post.id)}
                                             >
-                                                {deletingPostId === post.id ? "삭제 중..." : "삭제"}
+                                                댓글 보기
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <button
+                                                className="delete-button"
+                                                onClick={() => deletePost(post.id)}
+                                            >
+                                                삭제
                                             </button>
                                         </td>
                                     </tr>
@@ -177,15 +207,38 @@ function AdminCommunityPosts() {
                 )}
 
                 {selectedPost && (
-                    <div className="modal-overlay" onClick={closeModal}>
+                    <div className="modal-overlay" onClick={closeCommentsModal}>
                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                            <h2>게시글 상세 내용</h2>
-                            <p><strong>제목:</strong> {selectedPost.title}</p>
-                            <p><strong>내용:</strong> {selectedPost.content}</p>
-                            <p><strong>카테고리:</strong> {selectedPost.category}</p>
-                            <p><strong>작성자:</strong> {selectedPost.userNickname}</p>
-                            <p><strong>작성일:</strong> {new Date(selectedPost.createdAt).toLocaleDateString()}</p>
-                            <button className="close-button" onClick={closeModal}>
+                            <h2>댓글 관리</h2>
+                            {loadingComments ? (
+                                <div className="loading-container">
+                                    <div className="spinner"></div>
+                                    <p>댓글을 불러오는 중...</p>
+                                </div>
+                            ) : commentError ? (
+                                <p className="error-message">{commentError}</p>
+                            ) : comments.length > 0 ? (
+                                    <ul className="comments-list">
+                                        {comments.map((comment) => (
+                                            <li key={comment.id} className="comment-item">
+                                                <p><strong>작성자:</strong> {comment.authorName}</p>
+                                                <p>{comment.content}</p>
+                                                <p><strong>작성일:</strong> {new Date(comment.createdAt).toLocaleString()}
+                                                </p>
+                                                <button
+                                                    className="delete-comment-button"
+                                                    onClick={() => deleteComment(comment.id)}
+                                                >
+                                                    삭제
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                            ) : (
+                                    <p className="no-results">댓글이 없습니다.</p>
+                                )}
+
+                                <button className="close-button" onClick={closeCommentsModal}>
                                 닫기
                             </button>
                         </div>

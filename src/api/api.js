@@ -27,3 +27,11 @@ export const postsApi = axios.create({
         'Content-Type': 'application/json', // 기본 Content-Type 설정
     }
 });
+
+export const commentsApi = axios.create({
+    baseURL: 'http://localhost:9001/api/v1/posts', // spring 서버 url
+    timeout: 5000,
+    headers: {
+        'Content-Type': 'application/json', // 기본 Content-Type 설정
+    }
+});
