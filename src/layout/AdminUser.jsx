@@ -17,6 +17,7 @@ function AdminUser() {
     const [highlightedUser, setHighlightedUser] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
 
+    // Fetch users on mount or when page changes
     useEffect(() => {
         const adminAccessToken = localStorage.getItem("adminAccessToken");
         if (!adminAccessToken) {
@@ -29,7 +30,7 @@ function AdminUser() {
 
     const fetchUsers = async (token, page) => {
         setLoading(true);
-        setError(null); // 이전 에러 초기화
+        setError(null);
         try {
             const response = await usersApi.get("/admin/users", {
                 headers: { Authorization: `Bearer ${token}` },
@@ -38,9 +39,7 @@ function AdminUser() {
             setUsers(response.data.content);
             setTotalPages(response.data.totalPages);
         } catch (err) {
-            const errorMessage =
-                err.response?.data?.message || "유저 데이터를 가져오는 데 실패했습니다.";
-            setError(errorMessage);
+            setError(err.response?.data?.message || "유저 데이터를 가져오는 데 실패했습니다.");
             console.error("유저 데이터 가져오기 에러:", err.response || err.message);
         } finally {
             setLoading(false);
@@ -61,27 +60,19 @@ function AdminUser() {
         }
 
         setIsSearching(true);
-        setError(null); // 이전 에러 초기화
+        setError(null);
         try {
             const response = await usersApi.post(
                 "/admin/users/email",
                 { email: searchEmail },
                 { headers: { Authorization: `Bearer ${adminAccessToken}` } }
             );
-
-            const result = response.data;
-            if (result) {
-                setUsers([result]);
-                setTotalPages(1);
-                setPage(0);
-                setHighlightedUser(result.id);
-            } else {
-                setError("검색 결과가 없습니다.");
-            }
+            setUsers([response.data]);
+            setTotalPages(1);
+            setPage(0);
+            setHighlightedUser(response.data.id);
         } catch (err) {
-            const errorMessage =
-                err.response?.data?.message || "이메일 검색에 실패했습니다.";
-            setError(errorMessage);
+            setError(err.response?.data?.message || "이메일 검색에 실패했습니다.");
             console.error("이메일 검색 에러:", err.response || err.message);
         } finally {
             setIsSearching(false);
@@ -89,20 +80,20 @@ function AdminUser() {
     };
 
     const resetSearch = () => {
-        setSearchEmail(""); // 검색어 초기화
+        setSearchEmail("");
         setHighlightedUser(null);
-        setError(null); // 에러 메시지 초기화
+        setError(null);
         const adminAccessToken = localStorage.getItem("adminAccessToken");
         if (adminAccessToken) {
-            fetchUsers(adminAccessToken, page); // 전체 유저 다시 조회
+            fetchUsers(adminAccessToken, page);
         }
     };
 
     const handlePageChange = (newPage) => {
         if (newPage >= 0 && newPage < totalPages) {
             setPage(newPage);
-            setHighlightedUser(null); // 페이지 이동 시 강조 초기화
-            setError(null); // 에러 초기화
+            setHighlightedUser(null);
+            setError(null);
         }
     };
 
@@ -114,7 +105,7 @@ function AdminUser() {
             return;
         }
 
-        setError(null); // 이전 에러 초기화
+        setError(null);
         try {
             const endpoint = isActive
                 ? `/admin/users/deactivate/${userId}`
@@ -123,12 +114,16 @@ function AdminUser() {
                 headers: { Authorization: `Bearer ${adminAccessToken}` },
             });
             alert(`유저가 성공적으로 ${isActive ? "비활성화" : "활성화"}되었습니다.`);
-            resetSearch(); // 상태 변경 후 검색 초기화
+            resetSearch();
         } catch (err) {
-            const errorMessage =
-                err.response?.data?.message || "상태 변경 실패. 다시 시도해주세요.";
-            setError(errorMessage);
+            setError(err.response?.data?.message || "상태 변경 실패. 다시 시도해주세요.");
             console.error("유저 상태 변경 에러:", err.response || err.message);
+        }
+    };
+
+    const goToCommunityPage = () => {
+        if (selectedUser) {
+            navigate(`/admin/community/posts?userId=${selectedUser.id}`);
         }
     };
 
@@ -149,14 +144,10 @@ function AdminUser() {
                         placeholder="이메일로 검색"
                         value={searchEmail}
                         onChange={(e) => setSearchEmail(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter" && !isSearching) {
-                                searchUserByEmail(); // 엔터 키를 누르면 검색 실행
-                            }
-                        }}
+                        onKeyDown={(e) => e.key === "Enter" && !isSearching && searchUserByEmail()}
                     />
                     <button
-                        className={`search-button ${isSearching ? "searching" : ""}`}
+                        className="search-button"
                         onClick={searchUserByEmail}
                         disabled={isSearching}
                     >
@@ -166,7 +157,6 @@ function AdminUser() {
                         전체 보기
                     </button>
                 </div>
-
 
                 {loading ? (
                     <div className="loading-container">
@@ -186,14 +176,16 @@ function AdminUser() {
                                         <th>이메일</th>
                                         <th>가입일</th>
                                         <th>상태</th>
-                                        <th>작업</th>
+                                        <th>버튼</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {users.map((user) => (
                                         <tr
                                             key={user.id}
-                                            className={highlightedUser === user.id ? "highlighted-row" : ""}
+                                            className={
+                                                highlightedUser === user.id ? "highlighted-row" : ""
+                                            }
                                             onClick={() => setSelectedUser(user)}
                                         >
                                             <td>{user.name}</td>
@@ -262,24 +254,18 @@ function AdminUser() {
                                 닫기
                             </button>
                             <div className="user-details">
+                                <p><strong>이름:</strong> {selectedUser.name}</p>
+                                <p><strong>닉네임:</strong> {selectedUser.nickname}</p>
+                                <p><strong>성별:</strong> {selectedUser.gender === "FEMALE" ? "여성" : "남성"}</p>
+                                <p><strong>이메일:</strong> {selectedUser.email}</p>
+                                <p><strong>가입일:</strong> {new Date(selectedUser.createDate).toLocaleDateString()}</p>
                                 <p>
-                                    <strong>이름:</strong> {selectedUser.name}
+                                    <strong>상태:</strong>{" "}
+                                    {selectedUser.deleteDate ? "비활성화" : "활성화"}
                                 </p>
-                                <p>
-                                    <strong>닉네임:</strong> {selectedUser.nickname}
-                                </p>
-                                <p>
-                                    <strong>성별:</strong> {selectedUser.gender === "FEMALE" ? "여성" : "남성"}
-                                </p>
-                                <p>
-                                    <strong>이메일:</strong> {selectedUser.email}
-                                </p>
-                                <p>
-                                    <strong>가입일:</strong> {new Date(selectedUser.createDate).toLocaleDateString()}
-                                </p>
-                                <p>
-                                    <strong>상태:</strong> {selectedUser.deleteDate ? "비활성화" : "활성화"}
-                                </p>
+                                <button className="manage-posts-button" onClick={goToCommunityPage}>
+                                    게시글 관리
+                                </button>
                             </div>
                         </div>
                     </div>

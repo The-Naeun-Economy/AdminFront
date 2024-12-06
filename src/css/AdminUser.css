@@ -1,7 +1,7 @@
 /* Admin Layout */
 .admin-layout {
     display: flex;
-    min-height: 200vh;
+    min-height: 100vh;
 }
 
 .admin-content {
@@ -23,7 +23,6 @@
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
 }
 
 .custom-table th,
@@ -36,6 +35,11 @@
     background-color: #f0f2f5;
     font-weight: bold;
     text-transform: uppercase;
+    text-align: center;
+}
+
+.custom-table td {
+    text-align: center;
 }
 
 .custom-table tr:nth-child(even) {
@@ -44,6 +48,7 @@
 
 .custom-table tr:hover {
     background-color: #e6f7ff;
+    cursor: pointer;
 }
 
 /* Status Badges */
@@ -178,28 +183,21 @@
     max-width: 500px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+    position: relative;
+    text-align: left;
 }
 
 .modal-content h2 {
     margin-top: 0;
     font-size: 24px;
     color: #333;
+    text-align: center;
 }
 
 .modal-content .close-button {
-    display: inline-block;
-    margin-top: 10px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
     padding: 10px 16px;
     background-color: #ff4d4f;
     color: #fff;
@@ -224,6 +222,75 @@
     color: #333;
 }
 
+/* Search */
+.search-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.search-input {
+    width: 300px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: #4caf50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+.search-button {
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-button:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+}
+
+.search-button:hover {
+    background-color: #45a049;
+}
+
+.reset-button {
+    padding: 10px 20px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.reset-button:disabled {
+    background-color: #ffcdd2;
+    cursor: not-allowed;
+}
+
+.reset-button:hover {
+    background-color: #d32f2f;
+}
+
+/* Highlighted Row */
+.highlighted-row {
+    background-color: #ffffcc;
+    transition: background-color 0.3s ease;
+}
+
+.highlighted-row:hover {
+    background-color: #fff2a8;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .custom-table th,
@@ -241,77 +308,28 @@
         width: 95%;
     }
 }
-
-.search-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.search-input {
-    width: 300px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px 0 0 4px;
-    outline: none;
-}
-
-.search-input:focus {
-    border-color: #4caf50;
-    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-}
-
-.search-button {
-    padding: 10px 20px;
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 0 4px 4px 0;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.search-button:disabled {
-    background-color: #a5d6a7;
-    cursor: not-allowed;
-}
-
-.search-button:hover {
-    background-color: #45a049;
-}
-
-.highlighted-row {
-    background-color: #ffffcc; /* 연한 노란색 */
-    transition: background-color 0.3s ease;
-}
-
-.highlighted-row:hover {
-    background-color: #fff2a8; /* 진한 노란색 */
-}
-
-.no-results {
-    text-align: center;
+/* Manage Posts Button */
+.manage-posts-button {
+    display: inline-block;
     margin-top: 20px;
-    font-size: 16px;
-    color: #888;
+    padding: 12px 20px;
+    background-color: #1890ff; /* 기본 배경색 */
+    color: #fff; /* 글자 색 */
+    font-size: 16px; /* 글자 크기 */
+    font-weight: bold;
+    text-align: center;
+    border: none; /* 테두리 없음 */
+    border-radius: 8px; /* 둥근 모서리 */
+    cursor: pointer; /* 클릭 가능한 포인터 */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* 애니메이션 효과 */
 }
 
-.reset-button {
-    padding: 10px 20px;
-    background-color: #f44336;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: 10px;
-    transition: background-color 0.3s ease;
+.manage-posts-button:hover {
+    background-color: #096dd9; /* hover 시 배경색 변경 */
+    transform: translateY(-2px); /* hover 시 약간 위로 이동 */
 }
 
-.reset-button:disabled {
-    background-color: #ffcdd2;
-    cursor: not-allowed;
-}
-
-.reset-button:hover {
-    background-color: #d32f2f;
+.manage-posts-button:active {
+    background-color: #0050b3; /* 클릭 시 배경색 변경 */
+    transform: translateY(0); /* 클릭 시 원래 위치로 돌아옴 */
 }
