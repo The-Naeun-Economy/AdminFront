@@ -74,8 +74,7 @@ function AdminCommunityPosts() {
         setLoadingComments(true);
         setCommentError(null);
         try {
-            const response = await commentsApi.get(`/${postId}/comments/users/me`, {
-                headers: { Authorization: `Bearer ${apiToken}` },
+            const response = await commentsApi.get(`/${postId}/comments`, {
             });
             setComments(response.data);
         } catch (err) {
@@ -85,22 +84,40 @@ function AdminCommunityPosts() {
         }
     };
 
-    const deleteComment = async (commentId) => {
-        if (!selectedPost) {
-            alert("게시글 정보가 없습니다.");
-            return;
-        }
 
+    const deleteComment = async (commentId, userId) => {
         const confirmDelete = window.confirm("이 댓글을 삭제하시겠습니까?");
         if (!confirmDelete) return;
 
         try {
-            await commentsApi.delete(`/${selectedPost}/comments/${commentId}`, {
-                headers: { Authorization: `Bearer ${apiToken}` },
+            // 1. localStorage에서 관리자 토큰 가져오기
+            const adminAccessToken = localStorage.getItem("adminAccessToken");
+            if (!adminAccessToken) {
+                alert("관리자 로그인이 필요합니다.");
+                return;
+            }
+
+            const tokenResponse = await usersApi.get(`/admin/users/${userId}`, {
+                headers: { Authorization: `Bearer ${adminAccessToken}` },
             });
 
-            alert("댓글이 성공적으로 삭제되었습니다.");
+            const userToken = tokenResponse.data; // 받아온 사용자 토큰
+
+            if (!userToken) {
+                alert("유효한 사용자 토큰을 가져오지 못했습니다.");
+                return;
+            }
+
+            // 3. 댓글 삭제 요청: 관리자 토큰과 사용자 토큰을 모두 헤더에 포함
+            await commentsApi.delete(`/${selectedPost}/comments/${commentId}`, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`, // 사용자 토큰
+                },
+            });
+
+            // 4. 상태에서 댓글 제거
             setComments((prevComments) => prevComments.filter((comment) => comment.id !== commentId));
+            alert("댓글이 성공적으로 삭제되었습니다.");
         } catch (err) {
             alert(err.response?.data?.message || "댓글 삭제 중 오류가 발생했습니다.");
         }
@@ -162,8 +179,8 @@ function AdminCommunityPosts() {
                                     <th>제목</th>
                                     <th>내용</th>
                                     <th>카테고리</th>
-                                    <th>작성자</th>
                                     <th>작성일</th>
+                                    <th>좋아요</th>
                                     <th>댓글 관리</th>
                                     <th>삭제</th>
                                 </tr>
@@ -178,8 +195,8 @@ function AdminCommunityPosts() {
                                                 : post.content}
                                         </td>
                                         <td>{post.category}</td>
-                                        <td>{post.userNickname}</td>
                                         <td>{new Date(post.createdAt).toLocaleDateString()}</td>
+                                        <td>{post.likesCount}</td>
                                         <td>
                                             <button
                                                 className="comments-button"
@@ -209,6 +226,9 @@ function AdminCommunityPosts() {
                 {selectedPost && (
                     <div className="modal-overlay" onClick={closeCommentsModal}>
                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                            <button className="close-button" onClick={closeCommentsModal}>
+                                &times;
+                            </button>
                             <h2>댓글 관리</h2>
                             {loadingComments ? (
                                 <div className="loading-container">
@@ -218,29 +238,31 @@ function AdminCommunityPosts() {
                             ) : commentError ? (
                                 <p className="error-message">{commentError}</p>
                             ) : comments.length > 0 ? (
-                                    <ul className="comments-list">
-                                        {comments.map((comment) => (
-                                            <li key={comment.id} className="comment-item">
-                                                <p><strong>작성자:</strong> {comment.authorName}</p>
-                                                <p>{comment.content}</p>
-                                                <p><strong>작성일:</strong> {new Date(comment.createdAt).toLocaleString()}
-                                                </p>
-                                                <button
-                                                    className="delete-comment-button"
-                                                    onClick={() => deleteComment(comment.id)}
-                                                >
-                                                    삭제
-                                                </button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                            ) : (
-                                    <p className="no-results">댓글이 없습니다.</p>
-                                )}
+                                <ul className="comments-list">
+                                    {comments.map((comment) => (
+                                        <li key={comment.id} className="comment-item">
+                                            <p className="comment-author">
+                                                <strong>작성자:</strong> {comment.userNickname} <strong>유저
+                                                아이디:</strong> {comment.userId}
+                                            </p>
+                                            <p className="comment-date">
+                                                <strong>작성일:</strong> {new Date(comment.createdAt).toLocaleString()}
+                                            </p>
+                                            <p className="comment-content"><strong>댓글: </strong> {comment.content}</p>
+                                            <p className="comment-content"><strong>좋아요: </strong>{comment.likeCount}</p>
+                                            <button
+                                                className="delete-comment-button"
+                                                onClick={() => deleteComment(comment.id, comment.userId)}
+                                            >
+                                                삭제
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
 
-                                <button className="close-button" onClick={closeCommentsModal}>
-                                닫기
-                            </button>
+                            ) : (
+                                <p className="no-results">댓글이 없습니다.</p>
+                            )}
                         </div>
                     </div>
                 )}
