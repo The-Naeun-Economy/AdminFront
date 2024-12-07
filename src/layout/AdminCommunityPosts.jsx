@@ -101,7 +101,7 @@ function AdminCommunityPosts() {
                 headers: { Authorization: `Bearer ${adminAccessToken}` },
             });
 
-            const userToken = tokenResponse.data; // 받아온 사용자 토큰
+            const userToken = tokenResponse.data.token; // 받아온 사용자 토큰
 
             if (!userToken) {
                 alert("유효한 사용자 토큰을 가져오지 못했습니다.");
