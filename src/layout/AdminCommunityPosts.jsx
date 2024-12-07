@@ -41,7 +41,7 @@ function AdminCommunityPosts() {
                 headers: { Authorization: `Bearer ${adminAccessToken}` },
             });
             setUserDetails(response.data);
-            setApiToken(response.data);
+            setApiToken(response.data.token);
         } catch (err) {
             setError(err.response?.data?.message || "유저 정보를 가져오는 데 실패했습니다.");
         } finally {
