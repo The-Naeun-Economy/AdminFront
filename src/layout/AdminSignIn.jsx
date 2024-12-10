@@ -10,7 +10,7 @@ function AdminSignIn() {
     const navigate = useNavigate();
 
     const handleSignUp = async () => {
-        await usersApi.post(`/api/v1/admin/super/signup`,{
+        await usersApi.post(`/admin/super/signup`,{
             adminCode: "cch5565",
             password: "password123!",
             name: "CCH",
