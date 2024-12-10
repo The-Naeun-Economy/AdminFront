@@ -12,19 +12,18 @@ import {usersApi} from "../api/api.js";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
-const StatsOverview = ({totalUsers, isLoading}) => (<div className="stats-overview">
+const StatsOverview = ({totalUsers, isLoading}) => (
+    <div className="stats-overview">
         <h2>총 유저 수</h2>
         {isLoading ? <p>로딩 중...</p> : <p>{totalUsers ? `총 ${totalUsers}명` : "데이터가 없습니다."}</p>}
-    </div>);
+    </div>
+);
 
 StatsOverview.propTypes = {
-    totalUsers: PropTypes.number, // 숫자 타입
-    isLoading: PropTypes.bool, // 불리언 타입
+    totalUsers: PropTypes.number,
+    isLoading: PropTypes.bool,
 };
 
-/**
- * GenderStats Component: 성별 비율
- */
 const GenderStats = ({genderData, isLoading}) => {
     const pieChartData = genderData && (() => {
         const total = genderData.reduce((sum, [, count]) => sum + count, 0);
@@ -35,37 +34,93 @@ const GenderStats = ({genderData, isLoading}) => {
                 backgroundColor: ["rgba(54, 162, 235, 0.6)", "rgba(255, 99, 132, 0.6)"],
                 borderColor: ["rgba(54, 162, 235, 1)", "rgba(255, 99, 132, 1)"],
                 borderWidth: 1,
-            },],
+            }],
         };
     })();
 
-    return (<div className="gender-stats-container">
-            <div className="gender-stats">
-                <h2 className="gender-title">성별 유저 비율</h2>
-                {isLoading ? (<p>로딩 중...</p>) : genderData ? (<div className="gender-chart-wrapper">
-                        <Pie
-                            data={pieChartData}
-                            options={{
-                                responsive: true, maintainAspectRatio: false, plugins: {
-                                    legend: {
-                                        position: "bottom",
-                                    },
+    return (
+        <div className="gender-stats">
+            <h2 className="gender-title">성별 유저 비율</h2>
+            {isLoading ? (
+                <p>로딩 중...</p>
+            ) : genderData ? (
+                <div className="gender-chart-wrapper">
+                    <Pie
+                        data={pieChartData}
+                        options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: "bottom",
                                 },
-                            }}
-                        />
-                    </div>) : (<p>데이터가 없습니다.</p>)}
-            </div>
-        </div>);
+                            },
+                        }}
+                    />
+                </div>
+            ) : (
+                <p>데이터가 없습니다.</p>
+            )}
+        </div>
+    );
 };
 
 GenderStats.propTypes = {
-    genderData: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))).isRequired, // 2차원 배열
-    isLoading: PropTypes.bool, // 불리언 타입
+    genderData: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))).isRequired,
+    isLoading: PropTypes.bool,
 };
 
-/**
- * AdminMain Component
- */
+const BillingStats = ({billingData, isLoading}) => {
+    const pieChartData = billingData && (() => {
+        const total = billingData.reduce((sum, [, count]) => sum + count, 0);
+        return {
+            labels: billingData.map(([status, count]) => `${status ? "유료 회원" : "무료 회원"} (${((count / total) * 100).toFixed(1)}%)`),
+            datasets: [{
+                data: billingData.map(([, count]) => count),
+                backgroundColor: ["rgba(54, 162, 235, 0.6)", "rgba(255, 99, 132, 0.6)"],
+                borderColor: ["rgba(54, 162, 235, 1)", "rgba(255, 99, 132, 1)"],
+                borderWidth: 1,
+            }],
+        };
+    })();
+
+    return (
+        <div className="billing-stats">
+            <h2 className="billing-title">결제 유저 비율</h2>
+            {isLoading ? (
+                <p>로딩 중...</p>
+            ) : billingData ? (
+                <div className="billing-chart-wrapper">
+                    <Pie
+                        data={pieChartData}
+                        options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: "bottom",
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (tooltipItem) => `${tooltipItem.label}: ${tooltipItem.raw}명`,
+                                    },
+                                },
+                            },
+                        }}
+                    />
+                </div>
+            ) : (
+                <p>데이터가 없습니다.</p>
+            )}
+        </div>
+    );
+};
+
+BillingStats.propTypes = {
+    billingData: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.bool, PropTypes.number]))).isRequired,
+    isLoading: PropTypes.bool,
+};
+
 function AdminMain() {
     const navigate = useNavigate();
 
@@ -77,6 +132,7 @@ function AdminMain() {
         isLoading: false,
         error: null,
         genderData: null,
+        billingData: null,
     });
 
     const updateState = (updates) => setState((prevState) => ({...prevState, ...updates}));
@@ -96,13 +152,24 @@ function AdminMain() {
     const initializePage = async (token) => {
         try {
             updateState({isLoading: true});
-            const [totalUsersData, yearsData, monthlyDataForYear, genderData] = await Promise.all([apiCall("/admin/users/count", token, "총 유저 수를 가져오는 데 실패했습니다."), apiCall("/admin/users/month", token, "연도 데이터를 가져오는 데 실패했습니다."), fetchMonthlyData(token, state.selectedYear), apiCall("/admin/users/gender/count", token, "성별 데이터를 가져오는 데 실패했습니다."),]);
+            const [totalUsersData, yearsData, monthlyDataForYear, genderData, billingData] = await Promise.all([
+                apiCall("/admin/users/count", token, "총 유저 수를 가져오는 데 실패했습니다."),
+                apiCall("/admin/users/month", token, "연도 데이터를 가져오는 데 실패했습니다."),
+                fetchMonthlyData(token, state.selectedYear),
+                apiCall("/admin/users/gender/count", token, "성별 데이터를 가져오는 데 실패했습니다."),
+                apiCall("/admin/users/billing/count", token, "청구 데이터를 가져오는 데 실패했습니다."),
+            ]);
 
             updateState({
-                totalUsers: totalUsersData.totalCount, availableYears: Object.keys(yearsData)
+                totalUsers: totalUsersData.totalCount,
+                availableYears: Object.keys(yearsData)
                     .map((key) => key.split("-")[0])
                     .filter((v, i, a) => a.indexOf(v) === i)
-                    .sort(), monthlyData: monthlyDataForYear, genderData, isLoading: false,
+                    .sort(),
+                monthlyData: monthlyDataForYear,
+                genderData,
+                billingData,
+                isLoading: false,
             });
         } catch (err) {
             updateState({error: err.message, isLoading: false});
@@ -117,21 +184,6 @@ function AdminMain() {
         });
     };
 
-    const setupAutoRefresh = (token) => {
-        const interval = setInterval(async () => {
-            try {
-                const [totalUsersData, genderData] = await Promise.all([apiCall("/admin/users/count", token, "총 유저 수를 갱신하는 데 실패했습니다."), apiCall("/admin/users/gender/count", token, "성별 데이터를 갱신하는 데 실패했습니다."),]);
-                setState((prevState) => ({
-                    ...prevState, totalUsers: totalUsersData.totalCount, genderData,
-                }));
-            } catch (err) {
-                console.error("자동 갱신 실패", err);
-            }
-        }, 1000); // 1초마다 갱신
-
-        return () => clearInterval(interval); // 컴포넌트 언마운트 시 정리
-    };
-
     useEffect(() => {
         const adminAccessToken = localStorage.getItem("adminAccessToken");
         if (!adminAccessToken) {
@@ -139,7 +191,6 @@ function AdminMain() {
             navigate("/admin");
         } else {
             initializePage(adminAccessToken);
-            return setupAutoRefresh(adminAccessToken);
         }
     }, []);
 
@@ -156,8 +207,8 @@ function AdminMain() {
         ],
     };
 
-
-    return (<div className="layout">
+    return (
+        <div className="layout">
             <AdminSidebar className="sidebar"/>
             <div className="content">
                 {state.error && <p className="error-message">{state.error}</p>}
@@ -165,7 +216,8 @@ function AdminMain() {
                 <div className="yearly-stats">
                     <h2>연도별 유저 통계</h2>
                     <div className="year-buttons">
-                        {state.availableYears.map((year) => (<button
+                        {state.availableYears.map((year) => (
+                            <button
                                 key={year}
                                 className={`button ${state.selectedYear === year ? "active" : ""}`}
                                 onClick={async () => {
@@ -175,16 +227,21 @@ function AdminMain() {
                                 }}
                             >
                                 {year}
-                            </button>))}
+                            </button>
+                        ))}
                     </div>
                 </div>
                 <div className="monthly-stats">
                     <h2>{state.selectedYear} 월별 유저 가입 수</h2>
                     <Bar data={barChartData}/>
                 </div>
-                <GenderStats genderData={state.genderData} isLoading={state.isLoading}/>
+                <div className="stats-row">
+                    <GenderStats genderData={state.genderData} isLoading={state.isLoading}/>
+                    <BillingStats billingData={state.billingData} isLoading={state.isLoading}/>
+                </div>
             </div>
-        </div>);
+        </div>
+    );
 }
 
 export default AdminMain;

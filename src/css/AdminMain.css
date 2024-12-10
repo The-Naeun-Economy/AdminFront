@@ -1,12 +1,14 @@
 /* AdminMain.css */
+
+/* 기본 레이아웃 설정 */
 .layout {
     display: flex;
-    min-height: 200vh; /* 화면 전체 높이를 채움 */
-    align-items: stretch; /* 자식 요소들이 같은 높이를 가짐 */
+    min-height: 100vh; /* 전체 화면 높이 */
+    align-items: stretch; /* 자식 요소들의 높이를 동일하게 */
 }
 
 .sidebar {
-    flex-shrink: 0; /* 사이드바 크기를 고정 */
+    flex-shrink: 0; /* 사이드바 크기 고정 */
     background-color: #2c3e50;
     color: white;
     padding: 20px;
@@ -24,6 +26,7 @@
     flex-direction: column;
 }
 
+/* 통계 오버뷰 스타일 */
 .stats-overview {
     margin-bottom: 20px;
     padding: 20px;
@@ -38,6 +41,7 @@
     color: #1890ff;
 }
 
+/* 연도별 통계 스타일 */
 .yearly-stats {
     margin-bottom: 20px;
     padding: 20px;
@@ -71,6 +75,7 @@
     background-color: #40a9ff;
 }
 
+/* 월별 통계 스타일 */
 .monthly-stats {
     padding: 20px;
     background-color: #fff;
@@ -78,33 +83,49 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* 에러 메시지 스타일 */
 .error-message {
     color: red;
     font-weight: bold;
     margin-bottom: 20px;
 }
 
-.gender-stats-container {
+/* 성별 및 결제 상태 차트 스타일 */
+.stats-row {
     display: flex;
-    justify-content: flex-start; /* 전체 컨테이너에서 왼쪽 정렬 */
-    align-items: flex-start; /* 수직 위쪽 정렬 */
-    margin-top: 20px; /* 위쪽 간격 */
+    justify-content: space-between; /* 차트를 양쪽 끝으로 배치 */
+    align-items: flex-start; /* 상단 정렬 */
+    gap: 20px; /* 차트 간격 */
+    margin-top: 20px;
 }
 
-.gender-stats {
-    background-color: #fff; /* 흰 배경 추가 */
-    padding: 20px; /* 내부 여백 */
-    border-radius: 8px; /* 모서리를 둥글게 */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
-    width: 50%; /* 고정된 차트 크기 */
+/* 각 차트 스타일 */
+.gender-stats, .billing-stats {
+    flex: 1; /* 동일한 너비 */
+    min-width: 300px; /* 최소 너비 */
+    max-width: 50%; /* 최대 너비 */
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.gender-chart-wrapper {
+/* 차트 컨테이너 크기 */
+.gender-chart-wrapper, .billing-chart-wrapper {
     width: 100%;
-    height: 350px;
+    height: 350px; /* 고정 높이 */
 }
 
-.gender-stats canvas {
-    width: 100% !important; /* 캔버스가 컨테이너에 맞추기 */
-    height: 100% !important; /* 고정 높이에 맞추기 */
+/* 캔버스 크기 */
+.gender-stats canvas, .billing-stats canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* 차트 제목 스타일 */
+.gender-title, .billing-title {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #333;
 }
