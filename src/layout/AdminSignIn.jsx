@@ -9,12 +9,22 @@ function AdminSignIn() {
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
     const navigate = useNavigate();
 
+    const handleSignUp = async () => {
+        await usersApi.post(`/api/v1/admin/super/signup`,{
+            adminCode: "cch5565",
+            password: "password123!",
+            name: "CCH",
+            role: "SUPER_ADMIN"
+        })
+    }
+
     const handleAdminLogin = () => {
         if (!adminCode || !password) {
             alert('아이디와 비밀번호를 입력해주세요.');
             return;
         }
-
+        console.log(adminCode);
+        console.log(password);
         setIsLoading(true); // 로딩 시작
         usersApi
             .post('/admin/login', { adminCode, password })
@@ -70,6 +80,9 @@ function AdminSignIn() {
                 </div>
                 <button className="login-button" onClick={handleAdminLogin} disabled={isLoading}>
                     {isLoading ? '로그인 중...' : '로그인'}
+                </button>
+                <button className="login-button" onClick={handleSignUp} disabled={isLoading}>
+                    {isLoading ? '회원가입 중...' : '회원가입'}
                 </button>
             </div>
         </div>
