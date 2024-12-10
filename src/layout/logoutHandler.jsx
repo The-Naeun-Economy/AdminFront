@@ -7,5 +7,5 @@ export const logoutHandler = (navigate, message = "로그아웃 되었습니다.
     alert(message);
 
     // 리다이렉트
-    window.location.href = "http://localhost:5173";
+    window.location.href = "https://repick.site";
 };
