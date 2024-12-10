@@ -40,7 +40,7 @@ jobs:
 
       - name: kubectl rollout restarting
         run: |
-          kubectl rollout restart deployment front
+          kubectl rollout restart deployment admin
 
       - name: Notify Slack
         run: |
