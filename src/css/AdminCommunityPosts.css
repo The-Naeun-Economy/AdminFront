@@ -226,3 +226,10 @@ button:disabled {
 .delete-comment-button:hover {
     background-color: #c0392b;
 }
+.modal-content p {
+    margin-bottom: 20px; /* 각 p 요소 하단에 20px 여백 추가 */
+}
+
+.modal-content p:last-child {
+    margin-bottom: 0; /* 마지막 p 요소는 여백 제거 */
+}
