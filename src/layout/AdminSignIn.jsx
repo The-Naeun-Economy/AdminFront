@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { usersApi } from '../api/api.js';
+import {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {usersApi} from '../api/api.js';
 import '../css/AdminSignIn.css'; // 스타일 파일 추가
 
 function AdminSignIn() {
@@ -8,15 +8,6 @@ function AdminSignIn() {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
     const navigate = useNavigate();
-
-    const handleSignUp = async () => {
-        await usersApi.post(`/admin/super/signup`,{
-            adminCode: "cch5565",
-            password: "password123!",
-            name: "CCH",
-            role: "SUPER_ADMIN"
-        })
-    }
 
     const handleAdminLogin = () => {
         if (!adminCode || !password) {
@@ -27,10 +18,10 @@ function AdminSignIn() {
         console.log(password);
         setIsLoading(true); // 로딩 시작
         usersApi
-            .post('/admin/login', { adminCode, password })
+            .post('/admin/login', {adminCode, password})
             .then((response) => {
                 if (response.status === 200) {
-                    const { accessToken, refreshToken } = response.data;
+                    const {accessToken, refreshToken} = response.data;
 
                     localStorage.setItem('adminAccessToken', accessToken.token);
                     localStorage.setItem('adminRefreshToken', refreshToken.token);
@@ -80,9 +71,6 @@ function AdminSignIn() {
                 </div>
                 <button className="login-button" onClick={handleAdminLogin} disabled={isLoading}>
                     {isLoading ? '로그인 중...' : '로그인'}
-                </button>
-                <button className="login-button" onClick={handleSignUp} disabled={isLoading}>
-                    {isLoading ? '회원가입 중...' : '회원가입'}
                 </button>
             </div>
         </div>
