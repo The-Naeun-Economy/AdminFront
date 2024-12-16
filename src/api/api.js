@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const usersApi = axios.create({
-    baseURL: 'http://localhost:8080/api/v1', // user
+    baseURL: 'https://repick.site/api/v1', // user
     headers: {
         'Content-Type': 'application/json', // 기본 Content-Type 설정
     }

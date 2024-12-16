@@ -145,6 +145,9 @@ const AdminSidebar = () => {
             <button style={buttonStyle} onClick={() => navigate("/admin/user")}>
                 유저 관리
             </button>
+            <button style={buttonStyle} onClick={() => navigate("/admin/suggestions")}>
+                건의 사항
+            </button>
             <button style={buttonStyle} onClick={() => navigate("/admin/toss")}>
                 토스 페이
             </button>

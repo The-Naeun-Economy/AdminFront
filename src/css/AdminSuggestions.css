@@ -1,0 +1,101 @@
+.layout {
+    display: flex;
+    height: 200vh;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #f4f7f9;
+    padding: 20px;
+}
+
+/* 카드 스타일 */
+.admin-toss-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.full-width-card {
+    max-width: none;
+}
+
+.admin-toss-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.admin-toss-loading,
+.admin-toss-error {
+    text-align: center;
+    font-size: 18px;
+}
+
+.admin-toss-error {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/* 테이블 */
+.admin-toss-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background-color: white;
+}
+
+.admin-toss-table th,
+.admin-toss-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.admin-toss-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.admin-toss-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.admin-toss-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* 페이지네이션 */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination-button {
+    padding: 10px 15px;
+    border: none;
+    background-color: #3498db;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.pagination-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    font-weight: bold;
+    color: #555;
+}
