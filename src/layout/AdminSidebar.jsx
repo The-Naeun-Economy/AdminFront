@@ -16,7 +16,7 @@ const AdminSidebar = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        height: "200vh",
+        height: "205vh",
     };
 
     const buttonStyle = {
@@ -137,7 +137,10 @@ const AdminSidebar = () => {
                 슈퍼 관리자 페이지
             </button>
             <button style={buttonStyle} onClick={() => navigate("/admin/main")}>
-                유저 통계
+                유저 가입 통계
+            </button>
+            <button style={buttonStyle} onClick={() => navigate("/admin/user/state")}>
+                유저 로그인 통계
             </button>
             <button style={buttonStyle} onClick={() => navigate("/admin/user")}>
                 유저 관리

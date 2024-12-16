@@ -8,6 +8,7 @@ import AdminSignIn from "./layout/AdminSignIn.jsx";
 import AdminCommunityPosts from "./layout/AdminCommunityPosts.jsx";
 import AdminToss from "./layout/AdminToss.jsx";
 import AdminTossMyPayMents from "./layout/AdminTossMyPayMents.jsx";
+import AdminUserState from "./layout/AdminUserState.jsx";
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
                 <Route path="/admin" element={<AdminSignIn />} />
                 <Route path="/admin/super" element={<AdminSuper />} />
                 <Route path="/admin/main" element={<AdminMain />} />
+                <Route path="/admin/user/state" element={<AdminUserState />} />
                 <Route path="/admin/user" element={<AdminUser />} />
                 <Route path="/admin/toss" element={<AdminToss />} />
                 <Route path="/admin/community/posts" element={<AdminCommunityPosts />} />

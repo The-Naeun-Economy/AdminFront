@@ -97,7 +97,7 @@
     justify-content: space-between; /* 차트를 양쪽 끝으로 배치 */
     align-items: flex-start; /* 상단 정렬 */
     gap: 20px; /* 차트 간격 */
-    margin-top: 20px;
+    margin-top: 20px; /* 상단 여백 */
 }
 
 /* 각 차트 스타일 */
@@ -130,13 +130,14 @@
     margin-bottom: 15px;
     color: #333;
 }
+
 .stats-container {
     display: flex; /* 가로 배치 */
     gap: 20px; /* 두 섹션 사이 간격 */
     margin-bottom: 20px; /* 아래 여백 */
 }
 
-.stats-overview, .today-logins {
+.stats-overview {
     flex: 1; /* 동일한 너비로 나눔 */
     padding: 15px;
     border: 1px solid #ddd; /* 테두리 */
