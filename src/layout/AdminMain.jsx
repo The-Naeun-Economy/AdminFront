@@ -207,12 +207,60 @@ function AdminMain() {
         ],
     };
 
+    // 상태 추가
+    const [todayLogins, setTodayLogins] = useState(null);
+    const [isLoadingTodayLogins, setIsLoadingTodayLogins] = useState(false);
+
+// 오늘 로그인한 유저 수 가져오기
+    const fetchTodayLogins = async (token) => {
+        setIsLoadingTodayLogins(true);
+        try {
+            const response = await usersApi.get("/admin/users/activate/day/count", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            console.log(response.data)
+            setTodayLogins(response.data.count); // 서버에서 "count"라는 필드로 반환된다고 가정
+        } catch (error) {
+            console.error("오늘 로그인한 유저 수를 가져오는 데 실패했습니다:", error.message);
+            setTodayLogins(null);
+        } finally {
+            setIsLoadingTodayLogins(false);
+        }
+    };
+
+// useEffect에서 API 호출 추가
+    useEffect(() => {
+        const adminAccessToken = localStorage.getItem("adminAccessToken");
+        if (!adminAccessToken) {
+            alert("관리자 로그인이 필요합니다.");
+            navigate("/admin");
+        } else {
+            initializePage(adminAccessToken);
+            fetchTodayLogins(adminAccessToken); // 오늘 로그인한 유저 수 가져오기
+        }
+    }, []);
+
+// 렌더링 부분에 추가
     return (
         <div className="layout">
             <AdminSidebar className="sidebar"/>
             <div className="content">
                 {state.error && <p className="error-message">{state.error}</p>}
-                <StatsOverview totalUsers={state.totalUsers} isLoading={state.isLoading}/>
+
+                <div className="stats-container">
+                    <StatsOverview totalUsers={state.totalUsers} isLoading={state.isLoading}/>
+                    <div className="today-logins">
+                        <h2>오늘 로그인 한 유저 수</h2>
+                        {isLoadingTodayLogins ? (
+                            <p>로딩 중...</p>
+                        ) : todayLogins !== null ? (
+                            <p>오늘 로그인한 유저: {todayLogins}명</p>
+                        ) : (
+                            <p>데이터가 없습니다.</p>
+                        )}
+                    </div>
+                </div>
+
                 <div className="yearly-stats">
                     <h2>연도별 유저 통계</h2>
                     <div className="year-buttons">
@@ -231,10 +279,12 @@ function AdminMain() {
                         ))}
                     </div>
                 </div>
+
                 <div className="monthly-stats">
                     <h2>{state.selectedYear} 월별 유저 가입 수</h2>
                     <Bar data={barChartData}/>
                 </div>
+
                 <div className="stats-row">
                     <GenderStats genderData={state.genderData} isLoading={state.isLoading}/>
                     <BillingStats billingData={state.billingData} isLoading={state.isLoading}/>
