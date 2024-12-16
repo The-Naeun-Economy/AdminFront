@@ -3,17 +3,19 @@ import React, { useEffect, useState } from "react";
 import "../css/AdminToss.css";
 import { tosspaymentsApi } from "../api/api.js";
 import AdminSidebar from "./AdminSidebar.jsx";
+import { useNavigate } from "react-router-dom"; // useNavigate 사용
 
 function AdminToss() {
     const [payments, setPayments] = useState([]); // 결제 데이터
     const [page, setPage] = useState(0); // 현재 페이지
-    const [size, setSize] = useState(50); // 페이지당 아이템 수
+    const [size, setSize] = useState(20); // 페이지당 아이템 수
     const [totalPages, setTotalPages] = useState(0); // 전체 페이지 수
     const [loading, setLoading] = useState(false); // 로딩 상태
     const [error, setError] = useState(null); // 에러 메시지
+    const navigate = useNavigate(); // useNavigate 훅
 
     // 결제 데이터 가져오기 함수
-    const fetchPayments = async (currentPage = 0, pageSize = 50) => {
+    const fetchPayments = async (currentPage = 0, pageSize = 20) => {
         setLoading(true);
         setError(null);
 
@@ -49,6 +51,11 @@ function AdminToss() {
         }
     };
 
+    // 사용자 ID 클릭 시 상세 결제 내역 페이지로 이동
+    const handleUserClick = (userId) => {
+        navigate(`/admin/toss/mypayments?userId=${userId}`);
+    };
+
     return (
         <div className="layout">
             <AdminSidebar className="sidebar" />
@@ -64,21 +71,26 @@ function AdminToss() {
                             <table className="admin-toss-table">
                                 <thead>
                                 <tr>
-                                    <th>결제 ID</th>
+                                    <th>순번</th> {/* 순차적 번호 열 */}
                                     <th>사용자 ID</th>
                                     <th>주문 ID</th>
                                     <th>결제 키</th>
                                     <th>요청 시간</th>
                                     <th>결제 방법</th>
                                     <th>금액</th>
-                                    <th>취소 여부</th>
+                                    <th>결제 여부</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {payments.map((payment) => (
+                                {payments.map((payment, index) => (
                                     <tr key={payment.id}>
-                                        <td>{payment.id}</td>
-                                        <td>{payment.userId}</td>
+                                        <td>{page * size + index + 1}</td> {/* 순번 계산 */}
+                                        <td
+                                            onClick={() => handleUserClick(payment.userId)}
+                                            style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
+                                        >
+                                            {payment.userId}
+                                        </td>
                                         <td>{payment.orderId}</td>
                                         <td>{payment.paymentKey}</td>
                                         <td>{new Date(payment.requestedAt).toLocaleString()}</td>

@@ -7,6 +7,8 @@ import AdminUser from "./layout/AdminUser.jsx";
 import AdminSignIn from "./layout/AdminSignIn.jsx";
 import AdminCommunityPosts from "./layout/AdminCommunityPosts.jsx";
 import AdminToss from "./layout/AdminToss.jsx";
+import AdminTossMyPayMents from "./layout/AdminTossMyPayMents.jsx";
+
 
 function App() {
     return (
@@ -19,7 +21,7 @@ function App() {
                 <Route path="/admin/user" element={<AdminUser />} />
                 <Route path="/admin/toss" element={<AdminToss />} />
                 <Route path="/admin/community/posts" element={<AdminCommunityPosts />} />
-
+                <Route path="/admin/toss/mypayments" element={<AdminTossMyPayMents />} />
                 {/* 잘못된 URL 접근 시 리다이렉트 */}
                 <Route path="*" element={<Navigate to="/admin" replace />} />
             </Routes>
