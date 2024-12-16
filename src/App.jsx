@@ -19,7 +19,7 @@ function App() {
                 <Route path="/admin/community/posts" element={<AdminCommunityPosts />} />
 
                 {/* 잘못된 URL 접근 시 리다이렉트 */}
-                <Route path="*" element={<Navigate to="/admin" replace />} />
+                <Route path="*" element={<Navigate to="/admin/main" replace />} />
             </Routes>
         </RecoilRoot>
     );
