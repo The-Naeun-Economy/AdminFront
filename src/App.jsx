@@ -6,6 +6,7 @@ import AdminSuper from "./layout/AdminSuper.jsx";
 import AdminUser from "./layout/AdminUser.jsx";
 import AdminSignIn from "./layout/AdminSignIn.jsx";
 import AdminCommunityPosts from "./layout/AdminCommunityPosts.jsx";
+import AdminToss from "./layout/AdminToss.jsx";
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
                 <Route path="/admin/super" element={<AdminSuper />} />
                 <Route path="/admin/main" element={<AdminMain />} />
                 <Route path="/admin/user" element={<AdminUser />} />
+                <Route path="/admin/toss" element={<AdminToss />} />
                 <Route path="/admin/community/posts" element={<AdminCommunityPosts />} />
 
                 {/* 잘못된 URL 접근 시 리다이렉트 */}

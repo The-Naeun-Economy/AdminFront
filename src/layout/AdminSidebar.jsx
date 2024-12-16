@@ -132,7 +132,7 @@ const AdminSidebar = () => {
 
     return (
         <div style={sidebarStyle}>
-            <h2 style={{ marginBottom: "20px", fontSize: "18px", fontWeight: "bold", color: "white"}}>관리자 메뉴</h2>
+            <h2 style={{marginBottom: "20px", fontSize: "18px", fontWeight: "bold", color: "white"}}>관리자 메뉴</h2>
             <button style={buttonStyle} onClick={() => navigate("/admin/super")}>
                 슈퍼 관리자 페이지
             </button>
@@ -141,6 +141,9 @@ const AdminSidebar = () => {
             </button>
             <button style={buttonStyle} onClick={() => navigate("/admin/user")}>
                 유저 관리
+            </button>
+            <button style={buttonStyle} onClick={() => navigate("/admin/toss")}>
+                토스 페이
             </button>
             <button style={buttonStyle} onClick={extendToken}>
                 토큰 연장

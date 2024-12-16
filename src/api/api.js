@@ -28,6 +28,11 @@ export const postsApi = axios.create({
     }
 });
 
+export const tosspaymentsApi = axios.create({
+    baseURL: 'https://repick.site/api/v1/tosspayments', // spring 서버 url
+});
+
+
 export const commentsApi = axios.create({
     baseURL: 'https://repick.site/api/v1/posts', // spring 서버 url
     timeout: 5000,
