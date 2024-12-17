@@ -104,7 +104,6 @@ const AdminSidebar = () => {
                 localStorage.setItem("adminAccessToken", accessToken);
                 localStorage.setItem("adminRefreshToken", refreshToken);
 
-                alert("토큰이 성공적으로 연장되었습니다!");
                 updateTokenRemainingTime();
             } else {
                 throw new Error("토큰 정보가 응답에 없습니다.");

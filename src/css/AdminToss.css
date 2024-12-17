@@ -17,6 +17,7 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
     margin: 0 auto; /* 가운데 정렬 */
+    margin-bottom: 30px;
     width: 100%; /* 카드의 너비를 100%로 설정 */
 }
 
@@ -97,4 +98,10 @@
 .pagination-info {
     font-weight: bold;
     color: #555;
+}
+.label-margin{
+    margin-right: 10px;
+}
+.date-inputs {
+    margin-bottom: 30px;
 }

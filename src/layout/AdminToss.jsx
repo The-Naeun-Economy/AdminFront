@@ -3,55 +3,81 @@ import React, { useEffect, useState } from "react";
 import "../css/AdminToss.css";
 import { tosspaymentsApi } from "../api/api.js";
 import AdminSidebar from "./AdminSidebar.jsx";
-import { useNavigate } from "react-router-dom"; // useNavigate 사용
+import { useNavigate } from "react-router-dom";
 
 function AdminToss() {
-    const [payments, setPayments] = useState([]); // 결제 데이터
-    const [page, setPage] = useState(0); // 현재 페이지
-    const [size, setSize] = useState(20); // 페이지당 아이템 수
-    const [totalPages, setTotalPages] = useState(0); // 전체 페이지 수
-    const [loading, setLoading] = useState(false); // 로딩 상태
-    const [error, setError] = useState(null); // 에러 메시지
-    const navigate = useNavigate(); // useNavigate 훅
+    const [payments, setPayments] = useState([]);
+    const [page, setPage] = useState(0);
+    const [size, setSize] = useState(15);
+    const [totalPages, setTotalPages] = useState(0);
+    const [loadingPayments, setLoadingPayments] = useState(false);
+    const [errorPayments, setErrorPayments] = useState(null);
 
-    // 결제 데이터 가져오기 함수
-    const fetchPayments = async (currentPage = 0, pageSize = 20) => {
-        setLoading(true);
-        setError(null);
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
 
-        try {
-            const response = await tosspaymentsApi.get("", {
-                params: {
-                    page: currentPage,
-                    size: pageSize,
-                },
-            });
+    const navigate = useNavigate();
 
-            setPayments(response.data.content); // 페이징된 데이터의 content
-            setPage(currentPage);
-            setSize(pageSize);
-            setTotalPages(response.data.totalPages); // 전체 페이지 수
-        } catch (err) {
-            console.error(err);
-            setError("결제 데이터를 가져오는 데 실패했습니다. 다시 시도해 주세요.");
-        } finally {
-            setLoading(false);
-        }
+    // 기본 날짜를 설정하는 함수
+    const getDefaultDates = () => {
+        const today = new Date();
+        const lastMonth = new Date();
+        lastMonth.setMonth(today.getMonth() - 1);
+
+        const formatDate = (date) => date.toISOString().split("T")[0]; // "YYYY-MM-DD" 형식 반환
+        return {
+            defaultStartDate: formatDate(lastMonth),
+            defaultEndDate: formatDate(today),
+        };
     };
 
-    // 컴포넌트 마운트 시 데이터 로드
     useEffect(() => {
-        fetchPayments();
+        const { defaultStartDate, defaultEndDate } = getDefaultDates();
+        setStartDate(defaultStartDate);
+        setEndDate(defaultEndDate);
+
+        // 초기 결제 데이터 로딩
+        fetchPayments(0, 15, defaultStartDate, defaultEndDate);
     }, []);
+
+    // 결제 데이터를 가져오는 함수
+    const fetchPayments = async (currentPage = 0, pageSize = 15, start = startDate, end = endDate) => {
+        if (!start || !end) {
+            setErrorPayments("시작 날짜와 끝 날짜를 설정해 주세요.");
+            return;
+        }
+        if (new Date(start) > new Date(end)) {
+            setErrorPayments("시작 날짜는 끝 날짜보다 앞서야 합니다.");
+            return;
+        }
+
+        setLoadingPayments(true);
+        setErrorPayments(null);
+
+        try {
+            const response = await tosspaymentsApi.get("/between", {
+                params: { start, end, page: currentPage, size: pageSize },
+            });
+
+            setPayments(response.data.content);
+            setPage(currentPage);
+            setSize(pageSize);
+            setTotalPages(response.data.totalPages);
+        } catch (err) {
+            console.error(err);
+            setErrorPayments("결제 데이터를 가져오는 데 실패했습니다. 다시 시도해 주세요.");
+        } finally {
+            setLoadingPayments(false);
+        }
+    };
 
     // 페이지 변경 핸들러
     const handlePageChange = (newPage) => {
         if (newPage >= 0 && newPage < totalPages) {
-            fetchPayments(newPage, size);
+            fetchPayments(newPage, size, startDate, endDate);
         }
     };
 
-    // 사용자 ID 클릭 시 상세 결제 내역 페이지로 이동
     const handleUserClick = (userId) => {
         navigate(`/admin/toss/mypayments?userId=${userId}`);
     };
@@ -59,19 +85,45 @@ function AdminToss() {
     return (
         <div className="layout">
             <AdminSidebar className="sidebar" />
-
             <div className="content">
                 <div className="admin-toss-card full-width-card">
-                    <h1 className="admin-toss-title">결제 내역</h1>
-                    {loading && <p className="admin-toss-loading">결제 데이터를 불러오는 중입니다...</p>}
-                    {error && <p className="admin-toss-error">{error}</p>}
+                    <h1 className="admin-toss-title">결제 내역 조회</h1>
+                    <div className="date-inputs">
+                        <label className="label-margin">
+                            시작 날짜:{" "}
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                required
+                            />
+                        </label>
+                        <label className="label-margin">
+                            끝 날짜:{" "}
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                required
+                            />
+                        </label>
+                        <button
+                            className="pagination-button"
+                            onClick={() => fetchPayments(0, size, startDate, endDate)}
+                        >
+                            조회하기
+                        </button>
+                    </div>
 
-                    {!loading && !error && (
+                    {loadingPayments && <p>결제 데이터를 불러오는 중입니다...</p>}
+                    {errorPayments && <p className="admin-toss-error">{errorPayments}</p>}
+
+                    {!loadingPayments && !errorPayments && (
                         <>
                             <table className="admin-toss-table">
                                 <thead>
                                 <tr>
-                                    <th>순번</th> {/* 순차적 번호 열 */}
+                                    <th>순번</th>
                                     <th>사용자 ID</th>
                                     <th>주문 ID</th>
                                     <th>결제 키</th>
@@ -84,10 +136,14 @@ function AdminToss() {
                                 <tbody>
                                 {payments.map((payment, index) => (
                                     <tr key={payment.id}>
-                                        <td>{page * size + index + 1}</td> {/* 순번 계산 */}
+                                        <td>{page * size + index + 1}</td>
                                         <td
                                             onClick={() => handleUserClick(payment.userId)}
-                                            style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
+                                            style={{
+                                                cursor: "pointer",
+                                                color: "blue",
+                                                textDecoration: "underline",
+                                            }}
                                         >
                                             {payment.userId}
                                         </td>
@@ -95,14 +151,13 @@ function AdminToss() {
                                         <td>{payment.paymentKey}</td>
                                         <td>{new Date(payment.requestedAt).toLocaleString()}</td>
                                         <td>{payment.method}</td>
-                                        <td>{payment.amount}</td>
+                                        <td>{payment.amount.toLocaleString()} 원</td>
                                         <td>{payment.isCanceled ? "취소됨" : "완료"}</td>
                                     </tr>
                                 ))}
                                 </tbody>
                             </table>
 
-                            {/* 페이지네이션 */}
                             <div className="pagination">
                                 <button
                                     onClick={() => handlePageChange(page - 1)}
