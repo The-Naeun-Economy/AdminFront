@@ -73,7 +73,7 @@ function AdminSuggestions() {
                             <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>이름</th>
+                                <th>연락처, 이메일</th>
                                 <th>내용</th>
                                 <th>작성 시간</th>
                             </tr>
