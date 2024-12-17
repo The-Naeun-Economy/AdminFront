@@ -84,7 +84,7 @@ function AdminSuggestions() {
                                     <td>{item.id}</td>
                                     <td>{item.name}</td>
                                     <td>{item.content}</td>
-                                    <td>{new Date(item.createdAt).toLocaleString()}</td>
+                                    <td>{new Date(new Date(item.createdAt).getTime() + 9 * 60 * 60 * 1000).toLocaleString()}</td>
                                 </tr>
                             ))}
                             </tbody>
